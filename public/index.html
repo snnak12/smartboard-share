@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Akıllı Tahta Aktarım Ekranı</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background: #1a1a2e; color: #fff; margin: 0; padding: 20px; }
+    .container { max-width: 900px; margin: 0 auto; }
+    .qr-box { background: #16213e; padding: 20px; border-radius: 12px; display: inline-block; margin-bottom: 20px; }
+    .qr-box img { width: 180px; height: 180px; border-radius: 8px; background: white; padding: 5px; }
+    #viewer { margin-top: 20px; min-height: 400px; background: #0f3460; border-radius: 12px; padding: 20px; display: flex; align-items: center; justify-content: center; }
+    img.preview { max-width: 100%; max-height: 65vh; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+    iframe { width: 100%; height: 65vh; border: none; border-radius: 8px; background: white; }
+    .download-btn { display: inline-block; padding: 15px 30px; background: #e94560; color: white; text-decoration: none; font-size: 20px; border-radius: 8px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>📱 Telefondan Dosya Göndermek İçin QR Kodu Taratın</h2>
+    <div class="qr-box">
+      <img id="qr" src="" alt="QR Yükleniyor...">
+      <p id="upload-url-text" style="font-size:12px; color:#aaa; margin-top:8px;"></p>
+    </div>
+    
+    <div id="viewer">
+      <p style="color: #8d99ae; font-size: 18px;">Henüz bir dosya gönderilmedi. Bekleniyor...</p>
+    </div>
+  </div>
+
+  <script>
+    const socket = io();
+
+    // QR Kodu Sunucudan Çek
+    fetch('/api/qr')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('qr').src = data.qrImage;
+        document.getElementById('upload-url-text').innerText = data.uploadUrl;
+      });
+
+    // Telefondan Dosya Yüklendiğinde Anında Çalışır
+    socket.on('new-file', (file) => {
+      const viewer = document.getElementById('viewer');
+      
+      if (file.type.startsWith('image/')) {
+        viewer.innerHTML = `<img class="preview" src="${file.url}" alt="${file.name}">`;
+      } else if (file.type === 'application/pdf') {
+        viewer.innerHTML = `<iframe src="${file.url}"></iframe>`;
+      } else {
+        viewer.innerHTML = `<a class="download-btn" href="${file.url}" download="${file.name}">📥 ${file.name} İndir</a>`;
+      }
+    });
+  </script>
+</body>
+</html>
