@@ -1,0 +1,15 @@
+{
+  "name": "smartboard-share",
+  "version": "1.0.0",
+  "description": "Akıllı Tahta QR Kodlu Anlık Dosya Paylaşım Sistemi",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1",
+    "qrcode": "^1.5.3",
+    "socket.io": "^4.7.5"
+  }
+}
